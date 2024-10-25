@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import styles from '../components/styles/LoginStyles'; 
+import styles from '@/components/styles/LoginStyles'; 
 
 export default function LoginScreen() {
   const [workerNumber, setWorkerNumber] = useState('');
@@ -17,6 +17,7 @@ export default function LoginScreen() {
   const handleLogin = async () => {
     setLoading(true);
     setError('');
+
     try {
       const response = await fetch(URL_API_LOGIN, {
         method: 'POST',
@@ -38,23 +39,17 @@ export default function LoginScreen() {
       
         if (data.id_role === 3) {
           setError("Pidele al encargado que te de los privilegios necesarios para creear prestamos.");
-          Alert.alert('Error', 'Pidele al encargado que te de los privilegios necesarios para creear prestamos.');
           return 0;
         }
 
-        // Guarda el token en AsyncStorage
         await AsyncStorage.setItem('token', token);
-
 
         router.push('/home/home');
       } else {
-        // Maneja errores
         setError(data || 'Ocurrió un error al iniciar sesión');
-        Alert.alert('Error', data || 'Ocurrió un error al iniciar sesión');
       }
     } catch (err) {
       setError('Error al conectar con el servidor');
-      Alert.alert('Error', 'Error al conectar con el servidor');
     } finally {
       setLoading(false);
     }
@@ -63,7 +58,7 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.loginBox}>
-        <Image source={require('../assets/images/logo.png')} style={styles.logo} />
+        <Image source={require('../assets/images/logo.png')} style={[styles.logo]} />
         <Text style={styles.loginTitle}>Iniciar Sesión</Text>
 
         {error !== '' && (
@@ -71,6 +66,7 @@ export default function LoginScreen() {
         )}
 
         <TextInput
+          id='workerNumber'
           style={styles.input}
           placeholder="No. de Trabajador"
           placeholderTextColor="#fff"
@@ -81,6 +77,7 @@ export default function LoginScreen() {
 
         <View style={styles.passwordContainer}>
           <TextInput
+            id="password"
             style={styles.inputPassword}
             placeholder="Contraseña"
             placeholderTextColor="#fff"

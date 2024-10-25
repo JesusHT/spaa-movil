@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from './home';
 import PrestamosScreen from './prestamos';
 import DevolucionScreen from './devolucion';
-import UserMenu from '../../components/UserMenu'; // Importa el componente del menú de usuario
+import UserMenu from '../../components/UserMenu';
 
 const Tab = createBottomTabNavigator();
 
@@ -14,7 +14,7 @@ export default function HomeLayout() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
+          let iconName : any;
 
           if (route.name === 'Home') {
             iconName = focused ? 'home' : 'home-outline';
@@ -35,11 +35,11 @@ export default function HomeLayout() {
             style={{ width: 40, height: 40, marginLeft: 10 }}
           />
         ),
-        // Solución: headerRight necesita retornar una función que devuelva JSX
+
         headerRight: () => {
           return <UserMenu />;
         },
-        headerTitle: '',
+        headerTitle: 'Menu',
         headerStyle: { backgroundColor: '#EEF0EE' },
       })}
     >

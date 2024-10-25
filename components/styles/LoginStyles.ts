@@ -17,23 +17,22 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     position: 'absolute',
     bottom: 0,
-    alignItems: 'center', // Para centrar el contenido
+    alignItems: 'center', 
     zIndex: 1,
     paddingTop: 85,
   },
   logo: {
     width: 120,
     height: 120,
-    resizeMode: 'contain',
-    position: 'absolute', // Para superponer la imagen
-    top: -60, // Ajusta la imagen hacia arriba (la mitad queda afuera del rectángulo)
+    position: 'absolute', 
+    top: -60,
     zIndex: 2,
   },
   loginTitle: {
     color: '#FFF',
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 30, // Espacio debajo del texto
+    marginBottom: 30, 
     textAlign: 'center',
   },
   input: {
@@ -76,13 +75,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
+
     elevation: 5,
-    width: '100%', // Asegura que el botón ocupe todo el ancho
+    width: '100%', 
   },
+
+  
   loginButtonText: {
     color: '#FFF',
     fontWeight: 'bold',
