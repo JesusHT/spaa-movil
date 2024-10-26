@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 
 const styles = StyleSheet.create({
     modalOverlay: {
@@ -17,10 +17,17 @@ const styles = StyleSheet.create({
       borderRadius: 8,
       padding: 10,
       elevation: 5,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.25,
-      shadowRadius: 4,
+      ...Platform.select({
+        ios: {
+          shadowColor: '#000',
+          shadowOpacity: 0.25,
+          shadowRadius: 4,
+          shadowOffset: { width: 0, height: 2 }
+        },
+        web: {
+          boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.25)"
+        }
+      })
     },
     modalText: {
       fontSize: 16,

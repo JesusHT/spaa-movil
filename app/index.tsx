@@ -2,63 +2,35 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import styles from '@/components/styles/LoginStyles'; 
+import { useLogin } from '@/hooks/useLogin';
+import styles from '@/components/styles/LoginStyles';
 
 export default function LoginScreen() {
-  const [workerNumber, setWorkerNumber] = useState('');
-  const [password, setPassword] = useState('');
-  const [hidePassword, setHidePassword] = useState(true);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [workerNumber, setWorkerNumber] = useState<number | ''>('');
+  const [password, setPassword] = useState<string>('');
+  const [hidePassword, setHidePassword] = useState<boolean>(true);
   const router = useRouter();
-  const URL_API_LOGIN = "http://localhost:4000/api/auth/login";
 
-  const handleLogin = async () => {
-    setLoading(true);
-    setError('');
+  const { loading, error, login } = useLogin(router);
 
-    try {
-      const response = await fetch(URL_API_LOGIN, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          worker_number: workerNumber,
-          password: password,
-        }),
-        credentials: 'include',
-      });
+  const handleLogin = () => {
+    if (workerNumber !== '') {
+      login(workerNumber, password);
+    }
+  };
 
-      const res = await response.json();
-      const data = res.body;
-
-      if (response.ok) {
-        const token = data.token;
-      
-        if (data.id_role === 3) {
-          setError("Pidele al encargado que te de los privilegios necesarios para creear prestamos.");
-          return 0;
-        }
-
-        await AsyncStorage.setItem('token', token);
-
-        router.push('/home/home');
-      } else {
-        setError(data || 'Ocurrió un error al iniciar sesión');
-      }
-    } catch (err) {
-      setError('Error al conectar con el servidor');
-    } finally {
-      setLoading(false);
+  const parseNumber = (value : string) => {
+    if (/^\d+$/.test(value)) {
+      setWorkerNumber(Number(value));
+    } else {
+      setWorkerNumber('');
     }
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.loginBox}>
-        <Image source={require('../assets/images/logo.png')} style={[styles.logo]} />
+        <Image source={require('@/assets/images/logo.png')} style={styles.logo} />
         <Text style={styles.loginTitle}>Iniciar Sesión</Text>
 
         {error !== '' && (
@@ -66,12 +38,12 @@ export default function LoginScreen() {
         )}
 
         <TextInput
-          id='workerNumber'
+          id="workerNumber"
           style={styles.input}
           placeholder="No. de Trabajador"
           placeholderTextColor="#fff"
-          value={workerNumber}
-          onChangeText={setWorkerNumber}
+          value={workerNumber.toString()}
+          onChangeText={(value) => { parseNumber(value); }}
           keyboardType="numeric"
         />
 
