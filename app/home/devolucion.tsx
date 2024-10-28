@@ -1,17 +1,12 @@
 import React from 'react';
 import { View, Text } from 'react-native';
+import styles from '@/components/styles/GlobalStyles';
 
 export default function DevolucionScreen() {
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <Text style={{ fontSize: 24, fontWeight: 'bold' }}>Pantalla de Devolución</Text>
-      <Text style={{ marginTop: 10, fontSize: 16 }}>
+    <View style={styles.viewContainer}>
+      <Text style={styles.title}>Pantalla de Devolución</Text>
+      <Text style={styles.paragraph}>
         Aquí puedes gestionar las devoluciones.
       </Text>
     </View>

@@ -20,7 +20,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.spaamovil"
+      "package": "com.anonymous.spaamovil",
+      "useCleartextTraffic": true
     },
     "web": {
       "bundler": "metro",
@@ -33,6 +34,11 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "8bb2cea7-7883-44f5-b2b3-027456d53d33"
+      }
     }
   }
 }

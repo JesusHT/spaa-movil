@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const URL_API_LOGIN = "http://localhost:4000/api/auth/login";
+const URL_API_LOGIN = "http://192.168.1.70:4000/api/auth/login";
 
 export const useLogin = (router: Router) => {
   const [loading, setLoading] = useState(false);
@@ -37,12 +37,12 @@ export const useLogin = (router: Router) => {
         }
 
         await AsyncStorage.setItem('token', token);
-        router.push('/home/home');
+        router.push('/home/');
       } else {
         setError(data || 'Ocurrió un error al iniciar sesión');
       }
-    } catch (err) {
-      setError('Error al conectar con el servidor');
+    } catch (err : any) {
+      setError(err);
     } finally {
       setLoading(false);
     }

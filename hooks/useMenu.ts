@@ -1,11 +1,10 @@
-// hooks/useMenu.js
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-
+import { Profile } from '@/models/ProfileModel';
 
 const useMenu = () => {
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState<Profile | null>(null);
   const [error, setError] = useState(null);
   const router = useRouter();
 
@@ -49,11 +48,12 @@ const useMenu = () => {
 
         const userData = await userResponse.json();
 
+
         setUserData({
           auth: authData.message,
           user: userData.body[0],
         });
-      } catch (error) {
+      } catch (error: any) {
         setError(error.message);
       }
     };
