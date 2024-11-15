@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const URL_API_LOGIN = "http://192.168.1.70:4000/api/auth/login";
+import { API_ROUTES } from '@/config/routes';
 
 export const useLogin = (router: Router) => {
   const [loading, setLoading] = useState(false);
@@ -13,7 +12,7 @@ export const useLogin = (router: Router) => {
     setError('');
 
     try {
-      const response = await fetch(URL_API_LOGIN, {
+      const response = await fetch(API_ROUTES.LOGIN, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

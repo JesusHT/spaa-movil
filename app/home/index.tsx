@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { View, Text, ScrollView, Alert, TouchableOpacity, SafeAreaView, TextInput } from 'react-native';
+import { View, Text, ScrollView, Alert, TouchableOpacity, TextInput } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import Signature from '@/utils/Signature';
 import styles from '@/components/styles/FormStyles';
@@ -7,6 +7,7 @@ import useCareer from '@/hooks/useCareer';
 import useInventory from '@/hooks/useInventory';
 import { useBorrow } from '@/hooks/useBorrow';
 import { Borrow, BorrowedItem } from '@/models/BorrowModel';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function HomeScreen() {
   const { careerData } = useCareer(); 
@@ -28,6 +29,16 @@ export default function HomeScreen() {
   const [borrowedItems, setBorrowedItems] = useState<BorrowedItem[]>([]);
   const signatureRef = useRef<any>(null);
   const [alertMessage, setAlertMessage] = useState('');
+  const [errors, setErrors] = useState({
+    applicant: false,
+    num_account: false,
+    id_career: false,
+    semester: false,
+    teacher: false,
+    practice_name: false,
+    email: false,
+    items: false,
+  });
 
   const handleInputChange = (name: string, value: string) => {
     setFormData({
@@ -36,7 +47,43 @@ export default function HomeScreen() {
     });
   };
 
-  const handleNext = () => setStep(step + 1);
+  const handleNext = () => {
+    // Paso 1: Validar campos
+    if (step === 1) {
+      const newErrors = {
+        applicant: !formData.applicant,
+        num_account: !formData.num_account,
+        id_career: !formData.id_career,
+        semester: !formData.semester,
+        teacher: !formData.teacher,
+        practice_name: !formData.practice_name,
+        email: !formData.email,
+        items: false,
+      };
+
+      setErrors(newErrors);
+
+      // Verifica si hay errores
+      if (Object.values(newErrors).includes(true)) {
+        return;
+      }      
+
+      // Avanzar al siguiente paso
+      setStep(step + 1);
+    }
+
+    // Paso 2: Validar si se ha agregado al menos un artículo
+    if (step === 2) {
+      if (borrowedItems.length === 0) {
+        setErrors((prevErrors) => ({ ...prevErrors, items: true }));
+        console.log("Error en paso 2: No hay artículos");
+        return;
+      }
+
+      setStep(step + 1);
+    }
+  };
+
   const handleBack = () => setStep(step - 1);
 
   const resetForm = () => {
@@ -54,6 +101,16 @@ export default function HomeScreen() {
     setQuantity('');
     setStep(1);
     setAlertMessage('');
+    setErrors({
+      applicant: false,
+      num_account: false,
+      id_career: false,
+      semester: false,
+      teacher: false,
+      practice_name: false,
+      email: false,
+      items: false,
+    });
   };
 
   const handleSubmit = async () => {
@@ -73,7 +130,6 @@ export default function HomeScreen() {
 
     if (response.success) {
       setAlertMessage('Formulario enviado correctamente.');
-      // Reiniciar el formulario después de 5 segundos
       setTimeout(() => {
         resetForm();
       }, 5000);
@@ -82,21 +138,42 @@ export default function HomeScreen() {
     }
   };
 
+  const [quantityError, setQuantityError] = useState(false); // Para controlar el error de cantidad
+  const [availableStock, setAvailableStock] = useState<number | null>(null); // Para almacenar el stock disponible
+
   const handleAddItem = () => {
     const selectedItem = inventoryData.find(item => item.id_inventory === Number(id_inventory));
-  
+
     if (selectedItem && id_inventory && quantity) {
       const quantityNumber = Number(quantity);
-      
+
+      // Validar si la cantidad excede el stock disponible
+      if (quantityNumber > selectedItem.stock) {
+        setQuantityError(true);
+        setAvailableStock(selectedItem.stock); // Establecer el stock disponible
+        Alert.alert('Error', 'La cantidad solicitada excede el stock disponible.');
+        return;
+      } else {
+        setQuantityError(false);
+        setAvailableStock(null); // Limpiar el mensaje de stock disponible
+      }
+
+      // Si la cantidad solicitada es 1, ajustarla automáticamente
+      if (selectedItem.stock === 1) {
+        setQuantity('1'); // Establecer la cantidad a 1 automáticamente
+      }
+
+      // Verificar si la cantidad solicitada supera el stock disponible en los artículos prestados
       const totalBorrowedQuantity = borrowedItems.reduce((acc, item) => {
         return item.id_inventory === selectedItem.id_inventory ? acc + item.quantity : acc;
       }, 0);
-  
+
       if (totalBorrowedQuantity + quantityNumber > selectedItem.stock) {
         Alert.alert('Error', 'La cantidad solicitada excede el stock disponible.');
         return;
       }
-      
+
+      // Si todo está bien, agregar el artículo a la lista
       setBorrowedItems([...borrowedItems, { id_inventory: selectedItem.id_inventory, quantity: quantityNumber }]);
       setIdInventory('');
       setQuantity('');
@@ -121,6 +198,14 @@ export default function HomeScreen() {
         <Text style={{ color: success ? 'green' : 'red' }}>{alertMessage}</Text>
       ) : null}
 
+      {/* Mensajes de error global */}
+      {(Object.values(errors).includes(true) && step === 1) && (
+        <Text style={styles.errorText}>Por favor, llena todos los campos requeridos.</Text>
+      )}
+      {(errors.items && step === 2) && (
+        <Text style={styles.errorText}>Por favor, agrega al menos un artículo.</Text>
+      )}
+
       {step === 1 && (
         <>
           {/* Datos del alumno */}
@@ -128,7 +213,7 @@ export default function HomeScreen() {
           <Text style={styles.label}>Solicitante</Text>
           <TextInput
             id='applicant'
-            style={styles.input}
+            style={[styles.input, errors.applicant && styles.errorInput]}
             value={formData.applicant}
             onChangeText={(text) => handleInputChange('applicant', text)}
             placeholder="Nombre del solicitante"
@@ -137,7 +222,7 @@ export default function HomeScreen() {
           <Text style={styles.label}>Número de Cuenta</Text>
           <TextInput
             id='num_account'
-            style={styles.input}
+            style={[styles.input, errors.num_account && styles.errorInput]}
             value={formData.num_account}
             onChangeText={(text) => handleInputChange('num_account', text)}
             placeholder="Número de cuenta"
@@ -148,7 +233,7 @@ export default function HomeScreen() {
           <Picker
             id='id_career'
             selectedValue={formData.id_career}
-            style={styles.input}
+            style={[styles.input, errors.id_career && styles.errorInput]}
             onValueChange={(itemValue) => handleInputChange('id_career', itemValue)}
           >
             <Picker.Item label="Selecciona tu carrera" value="" />
@@ -160,7 +245,7 @@ export default function HomeScreen() {
           <Text style={styles.label}>Semestre</Text>
           <TextInput
             id='semester'
-            style={styles.input}
+            style={[styles.input, errors.semester && styles.errorInput]}
             value={formData.semester}
             onChangeText={(text) => handleInputChange('semester', text)}
             placeholder="Semestre"
@@ -170,7 +255,7 @@ export default function HomeScreen() {
           <Text style={styles.label}>Profesor</Text>
           <TextInput
             id='teacher'
-            style={styles.input}
+            style={[styles.input, errors.teacher && styles.errorInput]}
             value={formData.teacher}
             onChangeText={(text) => handleInputChange('teacher', text)}
             placeholder="Nombre del profesor"
@@ -179,7 +264,7 @@ export default function HomeScreen() {
           <Text style={styles.label}>Nombre de la Práctica</Text>
           <TextInput
             id='practice_name'
-            style={styles.input}
+            style={[styles.input, errors.practice_name && styles.errorInput]}
             value={formData.practice_name}
             onChangeText={(text) => handleInputChange('practice_name', text)}
             placeholder="Nombre de la práctica"
@@ -188,7 +273,7 @@ export default function HomeScreen() {
           <Text style={styles.label}>Correo Electrónico</Text>
           <TextInput
             id='email'
-            style={styles.input}
+            style={[styles.input, errors.email && styles.errorInput]}
             value={formData.email}
             onChangeText={(text) => handleInputChange('email', text)}
             placeholder="Correo electrónico"
@@ -220,28 +305,36 @@ export default function HomeScreen() {
 
           <Text style={styles.label}>Cantidad</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, quantityError && styles.errorInput]}  
             value={quantity}
             onChangeText={setQuantity}
             placeholder="Cantidad"
             keyboardType="numeric"
           />
+          {quantityError && availableStock !== null && (
+            <Text style={styles.errorText}>Cantidad disponible: {availableStock}</Text>
+          )}
 
           <TouchableOpacity style={styles.button} onPress={handleAddItem}>
             <Text style={styles.buttonText}>Agregar</Text>
           </TouchableOpacity>
 
-          {/* Mostrar la lista de artículos prestados */}
           <Text style={styles.sectionTitle}>Artículos Agregados</Text>
           {borrowedItems.map((item, index) => {
             const itemDetail = inventoryData.find(invItem => invItem.id_inventory === item.id_inventory);
             const itemName = itemDetail ? itemDetail.name : 'Artículo Desconocido';
             return (
-              <View key={index}>
-                <Text>{`${itemName} (ID: ${item.id_inventory}), Cantidad: ${item.quantity}`}</Text>
-                <TouchableOpacity onPress={() => handleRemoveItem(index)}>
-                  <Text style={styles.removeButton}>Eliminar</Text>
-                </TouchableOpacity>
+              <View key={index} style={styles.itemContainer}>
+                <View style={styles.itemDetails}>
+                  <Text style={styles.itemText}>{`${itemName} (ID: ${item.id_inventory})`}</Text>
+                  <Text style={styles.itemText}>{`Cantidad: ${item.quantity}`}</Text>
+                </View>
+        
+                <View style={styles.deleteColumn}>
+                  <TouchableOpacity onPress={() => handleRemoveItem(index)} style={styles.deleteButton}>
+                    <Ionicons name="trash" size={24} color="red" />
+                  </TouchableOpacity>
+                </View>
               </View>
             );
           })}

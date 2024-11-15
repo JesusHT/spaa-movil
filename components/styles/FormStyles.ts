@@ -39,6 +39,7 @@ export default StyleSheet.create({
     fontWeight: '500',
     color: '#555',
     marginBottom: 5,
+    marginTop: 5
   },
   input: {
     height: 40,
@@ -71,4 +72,34 @@ export default StyleSheet.create({
     fontWeight: 'bold',
     marginLeft: 10,
   },
+
+  itemContainer: {
+    flexDirection: 'row',
+    marginBottom: 15,
+    alignItems: 'center',
+  },
+  itemDetails: {
+    flex: 8,
+    justifyContent: 'center',
+  },
+  deleteColumn: {
+    flex: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  itemText: {
+    fontSize: 16,
+  },
+  deleteButton: {
+    marginTop: 5,
+    padding: 5,
+  },
+  errorInput: {
+    borderColor: 'red',
+    borderWidth: 1,
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+  }
 });

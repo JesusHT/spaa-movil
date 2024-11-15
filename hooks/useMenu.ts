@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { Profile } from '@/models/ProfileModel';
+import { API_ROUTES } from '@/config/routes';
 
 const useMenu = () => {
   const [userData, setUserData] = useState<Profile | null>(null);
   const [error, setError] = useState(null);
   const router = useRouter();
-
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -18,10 +18,7 @@ const useMenu = () => {
           throw new Error('Token no encontrado');
         }
 
-        const URL_API_USER_AUTH = 'http://localhost:4000/protected-route';
-        const URL_API_USER_DATA = 'http://localhost:4000/api/usuarios/';
-
-        const authResponse = await fetch(URL_API_USER_AUTH, {
+        const authResponse = await fetch(API_ROUTES.AUTH, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -35,7 +32,7 @@ const useMenu = () => {
         const authData = await authResponse.json();
         const id_auth = authData.message.id_auth;
 
-        const userResponse = await fetch(`${URL_API_USER_DATA}${id_auth}`, {
+        const userResponse = await fetch(`${API_ROUTES.DATA}${id_auth}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,

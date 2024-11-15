@@ -2,20 +2,20 @@ import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Inventory } from '@/models/InventoryModel';
 import useMenu from '@/hooks/useMenu';
+import { API_ROUTES } from '@/config/routes';
 
 const useInventory = () => {
   const [inventoryData, setInventoryData] = useState<Inventory[]>([]);
   const [id_users, setIdUser] = useState(Number);
   const [error, setError] = useState<string | null>(null);
   const { userData } = useMenu();
-  const URL_API_INVENTORY_DATA = 'http://localhost:4000/api/inventario/';
 
   useEffect(() => {
     const fetchInventoryData = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
 
-        const response = await fetch(URL_API_INVENTORY_DATA, {
+        const response = await fetch(API_ROUTES.INVENTORY, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

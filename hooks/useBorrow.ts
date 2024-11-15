@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Borrow } from '@/models/BorrowModel';
-
-const URL_API_BORROW = "http://192.168.1.70:4000/api/prestamos";
+import { API_ROUTES } from '@/config/routes';
 
 export const useBorrow = () => {
   const [loading, setLoading] = useState(false);
@@ -22,7 +21,7 @@ export const useBorrow = () => {
         return { success: false, error: 'No se encontró el token de autenticación' };
       }
 
-      const response = await fetch(URL_API_BORROW, {
+      const response = await fetch(API_ROUTES.BORROW, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
